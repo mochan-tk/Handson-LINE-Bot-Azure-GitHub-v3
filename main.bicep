@@ -1,16 +1,16 @@
 // playground:https://bicepdemo.z22.web.core.windows.net/
 param location string = resourceGroup().location
-param ramdom string
+param random string
 param secret string
 param access string
 param containerRegistryName string
 param containerVer string
 
 var appInsightsName = 'AppInsights'
-var storageAccountName = 'fnstor${toLower(substring(replace(ramdom, '-', ''), 0, 18))}'
+var storageAccountName = 'fnstor${toLower(substring(replace(random, '-', ''), 0, 18))}'
 var containerName = 'files'
 
-param accountName string = 'cosmos-${toLower(ramdom)}'
+param accountName string = 'cosmos-${toLower(random)}'
 var databaseName = 'SimpleDB'
 var cosmosContainerName = 'Accounts'
 
@@ -117,6 +117,26 @@ resource cognitiveService 'Microsoft.CognitiveServices/accounts@2022-12-01' = {
     }
   }
 }
+
+/*
+resource azureOpenAIService 'Microsoft.CognitiveServices/accounts@2022-12-01' existing = {
+  name: 'AzureOpenAIServices0225'
+}
+*/
+
+
+resource azureOpenAIService 'Microsoft.CognitiveServices/accounts@2022-12-01' = {
+  name: 'AzureOpenAIServices0226'
+  location: 'eastus'
+  sku: {
+    name: 'S0'
+  }
+  kind: 'OpenAI'
+  properties: {
+    customSubDomainName: 'AzureOpenAIServices0226'
+  }
+}
+
 
 resource containerRegistry 'Microsoft.ContainerRegistry/registries@2022-12-01' existing = {
   name: containerRegistryName
@@ -250,6 +270,14 @@ resource containerApps 'Microsoft.App/containerApps@2022-10-01' = {
             {
               name: 'COGNITIVESERVICE_ENDPOINT'
               value: cognitiveService.properties.endpoint
+            }
+            {
+              name: 'AZREOPNEAISERVICE_KEY'
+              value: azureOpenAIService.listKeys().key1
+            }
+            {
+              name: 'AZREOPNEAISERVICE_ENDPOINT'
+              value: azureOpenAIService.properties.endpoint
             }
           ]
         }
